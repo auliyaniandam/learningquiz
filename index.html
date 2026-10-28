@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuis Sistem Limbik, RAS, dan Learning &amp; Memory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #eef2f5;
+  --card: #ffffff;
+  --ink: #1b2a35;
+  --muted: #55677a;
+  --line: #cfd9e1;
+  --accent: #0f6b6b;
+  --accent-ink: #ffffff;
+  --ok: #1d7a4a;
+  --ok-bg: #e3f3ea;
+  --bad: #a93a2b;
+  --bad-bg: #f8e6e2;
+  --focus: #1a5fb4;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #11181e;
+    --card: #1a242d;
+    --ink: #e6edf2;
+    --muted: #9fb0bf;
+    --line: #2f3f4c;
+    --accent: #4fc0b8;
+    --accent-ink: #0b1a19;
+    --ok: #62d394;
+    --ok-bg: #173126;
+    --bad: #f08a79;
+    --bad-bg: #3a1f1a;
+    --focus: #7db4ff;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 18px;
+  line-height: 1.55;
+  padding: 24px 16px 56px;
+}
+main { max-width: 720px; margin: 0 auto; }
+h1 { font-size: 1.55rem; line-height: 1.25; margin: 0 0 6px; }
+.sub { color: var(--muted); margin: 0 0 24px; font-size: 0.95rem; }
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 24px;
+}
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-bottom: 18px; }
+.bar > i { display: block; height: 100%; background: var(--accent); width: 0; }
+@media (prefers-reduced-motion: no-preference) { .bar > i { transition: width .25s ease; } }
+.meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 0.9rem; margin-bottom: 10px; }
+.level { font-weight: 700; color: var(--accent); }
+.prompt { font-size: 1.15rem; margin: 0 0 18px; }
+.opts { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.opt {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.8rem 1fr;
+  gap: 10px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt:disabled { cursor: default; }
+.opt .k { font-weight: 700; color: var(--muted); }
+.opt.right { border-color: var(--ok); background: var(--ok-bg); }
+.opt.right .k { color: var(--ok); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.opt.wrong .k { color: var(--bad); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.fb { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.fb strong.ok { color: var(--ok); }
+.fb strong.bad { color: var(--bad); }
+.fb p { margin: 6px 0 0; }
+.btn {
+  font: inherit;
+  font-weight: 700;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: 0;
+  border-radius: 8px;
+  padding: 11px 20px;
+  cursor: pointer;
+  margin-top: 16px;
+}
+.btn.ghost { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+.score { font-size: 2.6rem; font-weight: 700; line-height: 1.1; margin: 4px 0 4px; }
+.review { margin-top: 26px; display: grid; gap: 14px; }
+.rv { border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+.rv h3 { font-size: 1rem; margin: 0 0 6px; }
+.rv p { margin: 4px 0; font-size: 0.95rem; }
+.rv .ans-ok { color: var(--ok); font-weight: 700; }
+.rv .ans-bad { color: var(--bad); font-weight: 700; }
+.hint { color: var(--muted); font-size: 0.85rem; margin-top: 14px; }
+footer { color: var(--muted); font-size: 0.85rem; margin-top: 22px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Kuis Sistem Limbik, RAS, dan Fisiologi Learning &amp; Memory</h1>
+  <p class="sub">10 soal pilihan ganda untuk mahasiswa kedokteran tingkat 1: 4 mudah, 4 sedang, 2 sulit.</p>
+  <div id="app" class="card" aria-live="polite"></div>
+  <footer>Urutan pilihan jawaban diacak setiap kali kuis dimulai.</footer>
+</main>
+
+<script>
+/*DATA_START*/
+const QUIZ = [
+  {
+    "level": "Mudah",
+    "q": "Manakah struktur berikut yang BUKAN merupakan bagian utama sistem limbik?",
+    "options": ["Serebelum", "Hipokampus", "Amigdala", "Girus cinguli"],
+    "why": "Serebelum berperan dalam koordinasi gerak dan keseimbangan, bukan bagian sistem limbik. Hipokampus, amigdala, dan girus cinguli adalah komponen limbik yang berkaitan dengan memori, emosi, dan perilaku."
+  },
+  {
+    "level": "Mudah",
+    "q": "Fungsi utama hipokampus adalah...",
+    "options": ["Pembentukan memori deklaratif yang baru", "Pusat pengaturan suhu tubuh", "Pengaturan ritme pernapasan", "Pusat penglihatan primer"],
+    "why": "Hipokampus penting untuk konsolidasi informasi baru menjadi memori deklaratif (fakta dan peristiwa). Suhu diatur hipotalamus, pernapasan oleh batang otak, dan penglihatan primer oleh korteks oksipital."
+  },
+  {
+    "level": "Mudah",
+    "q": "Reticular Activating System (RAS) terutama berada di...",
+    "options": ["Formasio retikularis batang otak (mesensefalon dan pons)", "Korteks prefrontal", "Medula spinalis", "Lobus temporal medial"],
+    "why": "RAS adalah jaringan neuron di formasio retikularis batang otak, khususnya mesensefalon dan pons rostral. RAS memproyeksikan ke talamus dan korteks untuk mengatur kesiagaan (arousal)."
+  },
+  {
+    "level": "Mudah",
+    "q": "Struktur limbik yang paling berkaitan dengan pemrosesan emosi, terutama rasa takut, adalah...",
+    "options": ["Amigdala", "Fornix", "Badan mamilaria", "Septum pelusidum"],
+    "why": "Amigdala (di lobus temporal) berperan dalam menilai stimulus yang mengancam, memunculkan respons takut, dan mengaitkan emosi dengan memori. Fornix dan badan mamilaria adalah bagian sirkuit Papez, bukan pusat emosi takut."
+  },
+  {
+    "level": "Sedang",
+    "q": "Seorang pasien dengan gangguan penggunaan kokain mengatakan merasa sangat senang setelah memakai zat tersebut dan terus mendambakannya (craving). Mekanisme yang paling tepat menjelaskan efek reward kokain adalah...",
+    "options": ["Peningkatan dopamin di nukleus akumbens pada jalur mesolimbik (VTA → nukleus akumbens) akibat hambatan reuptake dopamin", "Penurunan pelepasan dopamin dari substansia nigra ke putamen", "Peningkatan asetilkolin di hipokampus yang menghambat jalur reward", "Penurunan aktivitas RAS sehingga korteks tidak lagi menilai rangsangan"],
+    "why": "Pusat reward utama adalah jalur dopaminergik mesolimbik: neuron dopamin di area tegmentum ventral (VTA) memproyeksikan ke nukleus akumbens (striatum ventral). Kokain menghambat transporter dopamin (DAT) sehingga reuptake dopamin berkurang dan dopamin menumpuk di sinaps nukleus akumbens, menimbulkan euforia dan memperkuat perilaku mencari zat (craving). Pilihan 'penurunan dopamin dari substansia nigra ke putamen' menggambarkan jalur nigrostriatal (gangguan pada Parkinson), bukan pusat reward. Pilihan lainnya tidak sesuai dengan mekanisme kokain. Pada penggunaan kronis, umumnya terjadi adaptasi (misalnya toleransi dan penurunan ketersediaan reseptor D2), sehingga zat yang sama memberi efek reward yang makin kecil."
+  },
+  {
+    "level": "Sedang",
+    "q": "Lesi pada bagian rostral batang otak (mesensefalon) yang merusak RAS secara bilateral paling mungkin menyebabkan...",
+    "options": ["Penurunan kesadaran hingga koma", "Gangguan memori jangka panjang saja", "Hilangnya kemampuan bicara spontan dengan kesadaran utuh", "Peningkatan kewaspadaan berlebihan"],
+    "why": "RAS mempertahankan kondisi terjaga melalui proyeksi difus ke talamus (inti intralaminar) dan korteks. Kerusakan bilateralnya menurunkan aktivasi korteks sehingga kesadaran menurun sampai koma."
+  },
+  {
+    "level": "Sedang",
+    "q": "Manakah contoh memori nondeklaratif (implisit)?",
+    "options": ["Keterampilan mengendarai sepeda", "Mengingat nama ibu kota negara", "Mengingat peristiwa wisuda sendiri", "Mengingat definisi potensial aksi"],
+    "why": "Keterampilan motorik (memori prosedural) termasuk memori nondeklaratif dan tidak bergantung pada hipokampus, melainkan pada ganglia basalis dan serebelum. Pilihan lain adalah memori deklaratif (semantik atau episodik)."
+  },
+  {
+    "level": "Sedang",
+    "q": "Seseorang melihat benda panjang berkelok di jalan setapak dan langsung melompat mundur sebelum menyadari bahwa itu hanya tali. Jalur saraf yang paling menjelaskan respons cepat ini (direct pathway) adalah...",
+    "options": ["Rangsangan sensorik → talamus → amigdala → hipotalamus dan batang otak → respons fisik", "Rangsangan sensorik → korteks serebri → talamus → amigdala → respons fisik", "Rangsangan sensorik → amigdala → korteks prefrontal → hipotalamus → respons fisik", "Rangsangan sensorik → hipotalamus → talamus → amigdala → respons fisik"],
+    "why": "Pada direct pathway, informasi sensorik dari talamus langsung menuju amigdala tanpa melewati korteks, lalu amigdala mengaktifkan hipotalamus dan batang otak sehingga muncul respons fisik. Jalur ini cepat tetapi kurang detail. Pada indirect pathway, informasi dari talamus diteruskan dulu ke korteks serebri untuk dianalisis lebih rinci, baru mencapai amigdala. Amigdala juga memberi umpan balik ke korteks, dan korteks prefrontal dapat mengontrol amigdala melalui top-down signalling."
+  },
+  {
+    "level": "Sulit",
+    "q": "Pada induksi long-term potentiation (LTP) fase awal di sinaps CA1 hipokampus, urutan kejadian yang paling tepat adalah...",
+    "options": ["Pelepasan glutamat → aktivasi AMPAR dan depolarisasi → blok Mg²⁺ pada NMDAR terlepas → influks Ca²⁺ → peningkatan fungsi dan jumlah AMPAR di postsinaps", "Aktivasi reseptor NMDA saja tanpa depolarisasi → influks Na+ → LTP", "Pelepasan GABA → hiperpolarisasi → penurunan jumlah reseptor AMPA", "Pelepasan asetilkolin → pembukaan kanal K+ → penurunan eksitabilitas → LTP"],
+    "why": "Glutamat mengaktifkan AMPAR sehingga terjadi depolarisasi yang melepaskan blok Mg²⁺ dari NMDAR. Influks Ca²⁺ mengaktifkan kaskade seperti CaMKII dan memicu fosforilasi serta penyisipan AMPAR (termasuk subunit GluA1) ke membran postsinaps, sehingga respons sinaps menguat. NMDAR berfungsi sebagai pendeteksi kejadian bersamaan (coincidence detector), jadi tanpa depolarisasi LTP tidak terjadi."
+  },
+  {
+    "level": "Sulit",
+    "q": "Seseorang dapat mengingat dengan sangat jelas detail peristiwa yang sangat menakutkan, misalnya kecelakaan lalu lintas, dibanding peristiwa netral. Mekanisme yang paling tepat menjelaskan hal ini adalah...",
+    "options": ["Amigdala (terutama kompleks basolateral) memodulasi konsolidasi memori di hipokampus, dibantu pelepasan norepinefrin dan kortisol saat stres", "Hipokampus bekerja sendiri tanpa pengaruh struktur lain karena peristiwa tersebut terjadi sekali", "RAS menghentikan seluruh aktivitas korteks sehingga memori tersimpan lebih lama", "Serebelum mengubah memori deklaratif menjadi prosedural"],
+    "why": "Stimulus emosional mengaktifkan amigdala, dan bersama hormon stres (norepinefrin dan glukokortikoid) amigdala meningkatkan konsolidasi memori di hipokampus dan korteks. RAS justru meningkatkan arousal, bukan menghentikan aktivitas korteks, dan serebelum tidak mengubah memori deklaratif menjadi prosedural."
+  }
+];
+/*DATA_END*/
+/* Pada data di atas, pilihan jawaban pertama (options[0]) selalu merupakan jawaban yang benar.
+   Urutannya diacak otomatis saat kuis ditampilkan. */
+
+const app = document.getElementById("app");
+const LETTERS = ["A", "B", "C", "D"];
+let state;
+
+function shuffle(a) {
+  const arr = a.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function start() {
+  state = {
+    i: 0,
+    answered: false,
+    items: QUIZ.map(function (q) {
+      return {
+        opts: shuffle(q.options.map(function (t, idx) { return { text: t, correct: idx === 0 }; })),
+        choice: null
+      };
+    })
+  };
+  render();
+}
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+function render() {
+  app.replaceChildren();
+  if (state.i >= QUIZ.length) { return renderResult(); }
+  const q = QUIZ[state.i];
+  const item = state.items[state.i];
+
+  const bar = el("div", "bar");
+  const fill = el("i");
+  fill.style.width = (state.i / QUIZ.length * 100) + "%";
+  bar.appendChild(fill);
+  app.appendChild(bar);
+
+  const meta = el("div", "meta");
+  meta.appendChild(el("span", "", "Soal " + (state.i + 1) + " dari " + QUIZ.length));
+  meta.appendChild(el("span", "level", q.level));
+  app.appendChild(meta);
+
+  app.appendChild(el("p", "prompt", q.q));
+
+  const list = el("ul", "opts");
+  item.opts.forEach(function (o, idx) {
+    const li = document.createElement("li");
+    const b = el("button", "opt");
+    b.type = "button";
+    b.appendChild(el("span", "k", LETTERS[idx]));
+    b.appendChild(el("span", "", o.text));
+    b.addEventListener("click", function () { choose(idx); });
+    li.appendChild(b);
+    list.appendChild(li);
+  });
+  app.appendChild(list);
+
+  if (!state.answered) {
+    app.appendChild(el("p", "hint", "Pilih jawaban dengan klik, atau tekan tombol A sampai D di keyboard."));
+  }
+}
+
+function choose(idx) {
+  if (state.answered) return;
+  state.answered = true;
+  const q = QUIZ[state.i];
+  const item = state.items[state.i];
+  item.choice = idx;
+
+  const buttons = app.querySelectorAll(".opt");
+  buttons.forEach(function (b, k) {
+    b.disabled = true;
+    if (item.opts[k].correct) b.classList.add("right");
+    else if (k === idx) b.classList.add("wrong");
+  });
+
+  const hint = app.querySelector(".hint");
+  if (hint) hint.remove();
+
+  const ok = item.opts[idx].correct;
+  const fb = el("div", "fb");
+  fb.appendChild(el("strong", ok ? "ok" : "bad", ok ? "Benar." : "Belum tepat."));
+  fb.appendChild(el("p", "", q.why));
+  const last = state.i === QUIZ.length - 1;
+  const next = el("button", "btn", last ? "Lihat hasil" : "Soal berikutnya");
+  next.type = "button";
+  next.addEventListener("click", function () {
+    state.i += 1;
+    state.answered = false;
+    render();
+    window.scrollTo(0, 0);
+  });
+  fb.appendChild(next);
+  app.appendChild(fb);
+  next.focus();
+}
+
+function renderResult() {
+  let score = 0;
+  state.items.forEach(function (it) { if (it.opts[it.choice].correct) score++; });
+
+  const bar = el("div", "bar");
+  const fill = el("i");
+  fill.style.width = "100%";
+  bar.appendChild(fill);
+  app.appendChild(bar);
+
+  app.appendChild(el("p", "meta", "Hasil kuis"));
+  app.appendChild(el("div", "score", score + " dari " + QUIZ.length + " benar"));
+
+  const again = el("button", "btn", "Ulangi kuis");
+  again.type = "button";
+  again.addEventListener("click", function () { start(); window.scrollTo(0, 0); });
+  app.appendChild(again);
+
+  const review = el("div", "review");
+  QUIZ.forEach(function (q, n) {
+    const it = state.items[n];
+    const ok = it.opts[it.choice].correct;
+    const correctText = it.opts.filter(function (o) { return o.correct; })[0].text;
+    const box = el("div", "rv");
+    box.appendChild(el("h3", "", (n + 1) + ". [" + q.level + "] " + q.q));
+    box.appendChild(el("p", ok ? "ans-ok" : "ans-bad", ok ? "Jawaban Anda benar." : "Jawaban Anda: " + it.opts[it.choice].text));
+    if (!ok) box.appendChild(el("p", "", "Jawaban yang benar: " + correctText));
+    box.appendChild(el("p", "", q.why));
+    review.appendChild(box);
+  });
+  app.appendChild(review);
+}
+
+document.addEventListener("keydown", function (e) {
+  if (!state || state.answered || state.i >= QUIZ.length) return;
+  const k = e.key.toUpperCase();
+  let idx = LETTERS.indexOf(k);
+  if (idx === -1 && "1234".indexOf(k) !== -1) idx = parseInt(k, 10) - 1;
+  if (idx !== -1 && idx < 4) choose(idx);
+});
+
+start();
+</script>
+</body>
+</html>
