@@ -1,6 +1,5 @@
 # Kuis Sistem Limbik, RAS, dan Fisiologi Learning & Memory
 
-10 soal pilihan ganda untuk mahasiswa kedokteran tingkat 1 (4 mudah, 4 sedang, 2 sulit), lengkap dengan kunci jawaban dan pembahasan.
 
 ## Cara menjalankan
 
